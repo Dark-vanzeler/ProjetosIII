@@ -1,0 +1,108 @@
+// atribuição dos pinos
+#define ECHO_PIN1 2
+#define TRIG_PIN1 3
+#define ECHO_PIN2 4
+#define TRIG_PIN2 5
+#define ECHO_PIN3 6
+#define TRIG_PIN3 7
+#define m1 11 //motor m1 LadoEsquerdo
+#define m2 12 //motor m2 LadoDireito
+
+double kalman(double U){
+  static const double R = 10;
+  static const double H = 1.00;
+  static double Q = 10;
+  static double P = 0;
+  static double U_hat = 0;
+  static double K = 0;
+  K = P*H/(H*P*H+R);
+  U_hat += + K*(U-H*U_hat);
+  P = (1-K*H)*P+Q;
+  return U_hat;
+}
+
+double kalman1(double U1){
+  static const double R1 = 10;
+  static const double H1 = 1.00;
+  static double Q1 = 10;
+  static double P1 = 0;
+  static double U_hat1 = 0;
+  static double K1 = 0;
+  K1 = P1*H1/(H1*P1*H1+1);
+  U_hat1 += + K1*(U1-H1*U_hat1);
+  P1 = (1-K1*H1)*P1+Q1;
+  return U_hat1;
+}
+
+double kalman2(double U2){
+  static const double R2 = 10;
+  static const double H2 = 1.00;
+  static double Q2 = 10;
+  static double P2 = 0;
+  static double U_hat2 = 0;
+  static double K2 = 0;
+  K2 = P2*H2/(H2*P2*H2+1);
+  U_hat2 += + K2*(U2-H2*U_hat2);
+  P2 = (1-K2*H2)*P2+Q2;
+  return U_hat2;
+}
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG_PIN1, OUTPUT);
+  pinMode(ECHO_PIN1, INPUT); // definição E/S pinos do Sensor 1
+  
+  pinMode(TRIG_PIN2, OUTPUT);
+  pinMode(ECHO_PIN2, INPUT); // definição E/S pinos do Sensor 2
+  
+  pinMode(TRIG_PIN3, OUTPUT);
+  pinMode(ECHO_PIN3, INPUT);// definição E/S pinos do Sensor 3
+  
+  pinMode(m1, OUTPUT);
+  pinMode(m2, OUTPUT);
+}
+
+float readDistanceCM(int x, int y) {
+  digitalWrite(x, LOW);
+  delayMicroseconds(2);
+  digitalWrite(x, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(x, LOW); // leitura da distância nos sensores 
+  int duration = pulseIn(y, HIGH);
+  return duration * 0.034 / 2;
+}
+
+void loop() {
+  
+  boolean close = true;
+
+  float distance1 = readDistanceCM(TRIG_PIN3, ECHO_PIN3);
+  float kaldist = kalman(distance1);
+  float distance2 = readDistanceCM(TRIG_PIN2, ECHO_PIN2);
+  float kaldist1 = kalman1(distance2);
+  float distance3 = readDistanceCM(TRIG_PIN1, ECHO_PIN1);
+  float kaldist2 = kalman2(distance3);
+    
+  if (150 > distance1 && distance1 < distance2 && distance1 < distance3){
+  	digitalWrite(m2, close);
+  	delay(500);
+  	digitalWrite(m2, !close); //comparação distância sensor 1
+  }else if (150 > distance2 && distance2 < distance1 && distance2 < distance3){
+    digitalWrite(m2, close); 
+  	digitalWrite(m1, close);
+  	delay(500);
+    digitalWrite(m2, !close);
+  	digitalWrite(m1, !close); //comparação distância sensor 2
+  }else if (150 > distance3 && distance3 < distance1 && distance3 < distance2){
+  	digitalWrite(m1, close);
+  	delay(500);
+  	digitalWrite(m1, !close); //comparação distância sensor 2
+  }
+  
+  Serial.print(kaldist);
+  Serial.print(" , ");
+  Serial.print(kaldist1);
+  Serial.print(" , ");
+  Serial.println(kaldist2);
+  delay(100);
+}

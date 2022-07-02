@@ -88,19 +88,19 @@ void loop() {
   
   // Avalia qual/quais motores devem ser ativados  
   if (150 > kaldist && kaldist < kaldist1 && kaldist < kaldist2){
-    digitalWrite(m2, close);  // Coloca m2 em nível logico alto
+    digitalWrite(m2, close);  // Coloca m2 em nível lógico alto
     delay(500);               // durante 500 ms
-    digitalWrite(m2, !close); // Coloca m1 em nível logico baixo
+    digitalWrite(m2, !close); // Coloca m1 em nível lógico baixo
   }else if (150 > kaldist1 && kaldist1 < kaldist && kaldist1 < kaldist2){
     digitalWrite(m2, close);  // Coloca m2 e m1 
-    digitalWrite(m1, close);  // em nível logico alto
+    digitalWrite(m1, close);  // em nível lógico alto
     delay(500);               // durante 500 ms
-    digitalWrite(m2, !close); // Coloca m2 em nível logico baixo
-    digitalWrite(m1, !close); // Coloca m1 em nível logico baixo
+    digitalWrite(m2, !close); // Coloca m2 em nível lógico baixo
+    digitalWrite(m1, !close); // Coloca m1 em nível lógico baixo
   }else if (150 > kaldist2 && kaldist2 < kaldist && kaldist2 < kaldist1){
-    digitalWrite(m1, close);  // Coloca m1 em nível logico alto
+    digitalWrite(m1, close);  // Coloca m1 em nível lógico alto
     delay(500);               // durante 500 ms 
-    digitalWrite(m1, !close); // Coloca m1 em nível logico baixo
+    digitalWrite(m1, !close); // Coloca m1 em nível lógico baixo
   }
   
   Serial.print(kaldist);
